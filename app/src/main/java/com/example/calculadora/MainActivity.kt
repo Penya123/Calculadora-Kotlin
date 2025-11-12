@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import java.nio.file.Files.write
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var evaluator: ExpressionEvaluator
     private lateinit var txtCounts: TextView
     private var txtDisplay: String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,10 @@ class MainActivity : AppCompatActivity() {
         val btnNum7 = findViewById<Button>(R.id.btnNum7)
         val btnDivision = findViewById<Button>(R.id.btnDivision)
         val btnPorsent = findViewById<Button>(R.id.btnPorsent)
+
         txtCounts = findViewById(R.id.txtCounts)
+
+        evaluator = ExpressionEvaluator()
 
         btnNum0.setOnClickListener{ writeNumber(0) }
         btnNum1.setOnClickListener{ writeNumber(1) }
@@ -54,8 +58,6 @@ class MainActivity : AppCompatActivity() {
         btnNum8.setOnClickListener{ writeNumber(8) }
         btnNum9.setOnClickListener{ writeNumber(9) }
 
-        btnDelete.setOnClickListener { clear() }
-
         btnPlus.setOnClickListener { writeOperator('+') }
         btnMinus.setOnClickListener { writeOperator('-') }
         btnMulti.setOnClickListener { writeOperator('*') }
@@ -63,7 +65,20 @@ class MainActivity : AppCompatActivity() {
         btnPorsent.setOnClickListener { writeOperator('%') }
         btnDot.setOnClickListener { writeOperator('.') }
 
+        btnDelete.setOnClickListener { clear() }
+
         btnErase.setOnClickListener { deleteLast() }
+
+        btnEquals.setOnClickListener {
+            val result = evaluator.evaluateExpression(txtDisplay)
+            if (result == null || result == "Error") {
+                txtCounts.text = "Error"
+                txtDisplay = ""
+            } else {
+                txtDisplay = result
+                txtCounts.text = txtDisplay
+            }
+        }
 
     }
     private fun writeNumber(value: Int){
@@ -71,30 +86,45 @@ class MainActivity : AppCompatActivity() {
         txtCounts.text = txtDisplay
     }
     private fun clear(){
-        txtDisplay = "0"
-        txtCounts.text = txtDisplay
+        txtCounts.text = "0"
+        txtDisplay = ""
     }
     private fun writeOperator(op: Char){
         val operadores = setOf('+','-','*','/')
-        if (txtDisplay.isEmpty()){
-            if(op == '-') {
-                txtDisplay = "-"
-                txtCounts.text = txtDisplay
+        if (txtDisplay.isEmpty()) {
+            when (op){
+                '-' -> {
+                    txtDisplay = "-"
+                    txtCounts.text = txtDisplay
+                }
+                '.' -> {
+                    txtDisplay = "0."
+                    txtCounts.text = txtDisplay
+                }
+                else -> {}
             }
             return
         }
-
-        if (txtDisplay.last() in operadores)
-            txtDisplay = txtDisplay.dropLast(1) + op
-        else
-            txtDisplay = txtDisplay + op
-        txtCounts.text = txtDisplay
+        else{
+            if (txtDisplay.last() in operadores)
+                if (op == '-' && txtDisplay.last() != '-')
+                    txtDisplay += op
+                else
+                    txtDisplay = txtDisplay.dropLast(1) + op
+            else
+                txtDisplay = txtDisplay + op
+            txtCounts.text = txtDisplay
+        }
     }
     private fun deleteLast(){
         if (txtDisplay.isEmpty())
             return
-        txtDisplay = txtDisplay.dropLast(1)
-        txtCounts.text = txtDisplay
+        if (txtDisplay.count() == 1)
+            clear()
+        else{
+            txtDisplay = txtDisplay.dropLast(1)
+            txtCounts.text = txtDisplay
+        }
     }
 }
 

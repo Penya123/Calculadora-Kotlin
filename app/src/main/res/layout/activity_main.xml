@@ -229,7 +229,7 @@
         android:layout_marginStart="19dp"
         android:layout_marginTop="21dp"
         android:backgroundTint="#301564"
-        android:text="--"
+        android:drawableEnd="@android:drawable/ic_input_delete"
         android:textColor="#FFFFFFFF"
         android:textSize="30dp"
         app:cornerRadius="10dp"
